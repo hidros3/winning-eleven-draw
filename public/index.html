@@ -818,8 +818,13 @@
       });
     }
 
-    async function resetServer() {
-      await fetch('/api/reset', { method: 'POST' });
+    async function resetServer(password) {
+      const res = await fetch('/api/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      return res.ok;
     }
 
     function shouldSkipPoll() {
@@ -840,7 +845,13 @@
 
     function resetAll() {
       if (!confirm('모든 데이터(추첨 결과, 경기 점수)가 삭제됩니다. 정말 초기화하시겠습니까?')) return;
-      resetServer().then(() => {
+      const password = prompt('관리자 비밀번호를 입력하세요:');
+      if (!password) return;
+      resetServer(password).then((ok) => {
+        if (!ok) {
+          alert('비밀번호가 틀렸습니다.');
+          return;
+        }
         state = { drawn: false, assignments: {}, scores: {}, fixtureFilter: 'all' };
         renderDraw();
         renderFixtures();

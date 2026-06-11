@@ -62,6 +62,10 @@ app.post('/api/score/:fixtureId', (req, res) => {
 });
 
 app.post('/api/reset', (req, res) => {
+  const { password } = req.body;
+  if (password !== 'gaucho') {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
   db.run("DELETE FROM config WHERE key = 'assignments'", [], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     db.run("DELETE FROM scores", [], function(err) {
